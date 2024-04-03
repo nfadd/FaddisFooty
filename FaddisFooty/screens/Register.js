@@ -5,7 +5,7 @@ import COLORS from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../components/Button';
 
-const Register = () => {
+const Register = ({ navigation }) => {
     const [isPasswordShown, setIsPasswordShown] = useState(false);
     const [password, setPassword] = useState('');
     const [confirmedPassword, setConfirmedPassword] = useState('');
@@ -73,6 +73,7 @@ const Register = () => {
 
             <Button
                 text='Register'
+                onPress={() => navigation.navigate('Home')}
                 filled
                 style={{
                     marginTop: 18,
