@@ -73,7 +73,7 @@ const Register = ({ navigation }) => {
 
             <Button
                 text='Register'
-                onPress={() => navigation.navigate('Home')}
+                onPress={() => navigation.navigate('NavBar')}
                 filled
                 style={{
                     marginTop: 18,

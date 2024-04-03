@@ -5,7 +5,7 @@ import COLORS from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../components/Button';
 
-const Login = () => {
+const Login = ({ navigation }) => {
     const [isPasswordShown, setIsPasswordShown] = useState(false);
 
   return (
@@ -52,6 +52,7 @@ const Login = () => {
 
             <Button
                 text='Login'
+                onPress={() => navigation.navigate('NavBar')}
                 filled
                 style={{
                     marginTop: 18,

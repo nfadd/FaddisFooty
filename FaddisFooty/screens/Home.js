@@ -2,7 +2,6 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import COLORS from '../constants/colors';
-import { NavigationContainer } from '@react-navigation/native';
 
 const Home = () => {
   return (
@@ -22,10 +21,6 @@ const Home = () => {
                 allowShadow
             />
         </CalendarProvider>
-
-        <NavigationContainer>
-            
-        </NavigationContainer>
     </SafeAreaView>
   )
 };
