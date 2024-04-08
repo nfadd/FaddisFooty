@@ -1,9 +1,40 @@
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CalendarProvider, WeekCalendar } from 'react-native-calendars';
+import { AgendaList, CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import COLORS from '../constants/colors';
+import { useState } from 'react';
 
 const Home = () => {
+
+    const items = [
+        {
+            name: 'Training',
+            data: [{
+                date: '2024-04-04',
+            }]
+        },
+        {
+            name: 'Game',
+            data: [{
+                date: '2024-04-06',
+            }]
+        },
+        {
+            name: 'Sleep',
+            data: [{
+                date: '2024-04-14',
+            }]
+        },
+    ];
+
+    const renderItem = item => {
+        return (
+            <View>
+                <Text>{item.name}</Text>
+            </View>
+        );
+    };
+
   return (
     <SafeAreaView style={{flex: 1}}>
         <View>
@@ -18,7 +49,11 @@ const Home = () => {
             date={getCurrentDate()}
         >
             <WeekCalendar 
-                allowShadow
+            />
+            <AgendaList 
+                sections={items}
+                renderItem={renderItem}
+                pagingEnabled
             />
         </CalendarProvider>
     </SafeAreaView>
