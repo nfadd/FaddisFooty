@@ -2,20 +2,18 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AgendaList, CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import COLORS from '../constants/colors';
-import { useState } from 'react';
-import { Axios } from 'axios';
-
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../.env')});
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const Home = () => {
 
-    const serv_addr = process.env.SERVER_ADDRESS || 'http://127.0.0.1:3000';
+    const serv_addr = process.env['API_HOST'] || 'http://localhost:3000';
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
-        Axios.get(serv_addr+'/api/users')
-            .then(response => {
+        const url = `${serv_addr}/api/users`;
+        axios.get(url)
+            .then((response) => {
                 setUsers(response.data);
             })
             .catch(error => {
@@ -23,32 +21,12 @@ const Home = () => {
             });
     }, []);
 
-    // const items = [
-    //     {
-    //         name: 'Training',
-    //         data: [{
-    //             date: '2024-04-04',
-    //         }]
-    //     },
-    //     {
-    //         name: 'Game',
-    //         data: [{
-    //             date: '2024-04-06',
-    //         }]
-    //     },
-    //     {
-    //         name: 'Sleep',
-    //         data: [{
-    //             date: '2024-04-14',
-    //         }]
-    //     },
-    // ];
-
     const renderItem = item => {
         return (
             <View>
-                <Text>{item.username}</Text>
-                <Text>{item.email}</Text>
+                {/* <Text>{item.username}</Text>
+                <Text>{item.email}</Text> */}
+                <Text>Hello</Text>
             </View>
         );
     };
@@ -57,7 +35,7 @@ const Home = () => {
     <SafeAreaView style={{flex: 1}}>
         <View>
             <Text style={styles.hello}>Hello,</Text>
-            <Text style={styles.userName}>Nick Faddis</Text>
+            <Text style={styles.userName}>{users[0].first_name} {users[0].last_name}</Text>
             <Image
                 source={require('../assets/nick_faddis.jpeg')}
                 style={styles.userImage} 
@@ -68,12 +46,12 @@ const Home = () => {
         >
             <WeekCalendar 
             />
-            <AgendaList 
+            {/* <AgendaList 
                 sections={users}
-                keyExtractor={user => user._id}
+                // keyExtractor={user => user._id}
                 renderItem={renderItem}
-                pagingEnabled
-            />
+                // pagingEnabled
+            /> */}
         </CalendarProvider>
     </SafeAreaView>
   )
