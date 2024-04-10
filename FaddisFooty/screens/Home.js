@@ -2,59 +2,71 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AgendaList, CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import COLORS from '../constants/colors';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import AgendaItem from '../components/AgendaItem';
 
 const Home = () => {
 
     const serv_addr = process.env['API_HOST'] || 'http://localhost:3000';
     const [users, setUsers] = useState([]);
+    const [events, setEvents] = useState([]);
 
     useEffect(() => {
-        const url = `${serv_addr}/api/users`;
-        axios.get(url)
+        // Users
+        const users_url = `${serv_addr}/api/users`;
+        axios.get(users_url)
             .then((response) => {
                 setUsers(response.data);
             })
             .catch(error => {
                 console.error('Error fetching users', error);
             });
+        
+        // Events
+        const events_url = `${serv_addr}/api/events`;
+        axios.get(events_url)
+            .then((response) => {
+                setEvents(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching events', error);
+            });
     }, []);
 
-    const renderItem = item => {
-        return (
-            <View>
-                {/* <Text>{item.username}</Text>
-                <Text>{item.email}</Text> */}
-                <Text>Hello</Text>
-            </View>
-        );
-    };
+    const renderItem = useCallback(item => {
+        return <AgendaItem item={item}/>;
+    },[]);
 
-  return (
-    <SafeAreaView style={{flex: 1}}>
-        <View>
-            <Text style={styles.hello}>Hello,</Text>
-            <Text style={styles.userName}>{users[0].first_name} {users[0].last_name}</Text>
-            <Image
-                source={require('../assets/nick_faddis.jpeg')}
-                style={styles.userImage} 
-            />
-        </View>
-        <CalendarProvider
-            date={getCurrentDate()}
-        >
-            <WeekCalendar 
-            />
-            {/* <AgendaList 
-                sections={users}
-                // keyExtractor={user => user._id}
-                renderItem={renderItem}
-                // pagingEnabled
-            /> */}
-        </CalendarProvider>
-    </SafeAreaView>
-  )
+    return (
+        <SafeAreaView style={{flex: 1}}>
+            <View>
+                <Text style={styles.hello}>Hello,</Text>
+                {users.length > 0 && (
+                    <Text style={styles.userName}>{users[0].first_name} {users[0].last_name}</Text>
+                )}
+                <Image
+                    source={require('../assets/nick_faddis.jpeg')}
+                    style={styles.userImage} 
+                />
+            </View>
+            <CalendarProvider
+                date={getCurrentDate()}
+                showTodayButton
+            >
+                <WeekCalendar 
+                />
+                {users.length > 0 && (
+                    <AgendaList 
+                        sections={[{title: 'Events', data: events}]}
+                        keyExtractor={event => event._id}
+                        renderItem={renderItem}
+                        pagingEnabled
+                    />
+                )}
+            </CalendarProvider>
+        </SafeAreaView>
+    )
 };
 
 function getCurrentDate(){
