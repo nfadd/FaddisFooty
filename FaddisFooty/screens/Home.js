@@ -3,34 +3,52 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AgendaList, CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import COLORS from '../constants/colors';
 import { useState } from 'react';
+import { Axios } from 'axios';
+
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env')});
 
 const Home = () => {
 
-    const items = [
-        {
-            name: 'Training',
-            data: [{
-                date: '2024-04-04',
-            }]
-        },
-        {
-            name: 'Game',
-            data: [{
-                date: '2024-04-06',
-            }]
-        },
-        {
-            name: 'Sleep',
-            data: [{
-                date: '2024-04-14',
-            }]
-        },
-    ];
+    const serv_addr = process.env.SERVER_ADDRESS || 'http://127.0.0.1:3000';
+    const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        Axios.get(serv_addr+'/api/users')
+            .then(response => {
+                setUsers(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching users', error);
+            });
+    }, []);
+
+    // const items = [
+    //     {
+    //         name: 'Training',
+    //         data: [{
+    //             date: '2024-04-04',
+    //         }]
+    //     },
+    //     {
+    //         name: 'Game',
+    //         data: [{
+    //             date: '2024-04-06',
+    //         }]
+    //     },
+    //     {
+    //         name: 'Sleep',
+    //         data: [{
+    //             date: '2024-04-14',
+    //         }]
+    //     },
+    // ];
 
     const renderItem = item => {
         return (
             <View>
-                <Text>{item.name}</Text>
+                <Text>{item.username}</Text>
+                <Text>{item.email}</Text>
             </View>
         );
     };
@@ -51,7 +69,8 @@ const Home = () => {
             <WeekCalendar 
             />
             <AgendaList 
-                sections={items}
+                sections={users}
+                keyExtractor={user => user._id}
                 renderItem={renderItem}
                 pagingEnabled
             />
