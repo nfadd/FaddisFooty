@@ -1,8 +1,9 @@
 const express = require('express');
-const { getUsersCollection } = require('../db');
+const { getUsersCollection, getEventsCollection } = require('../db');
 
 const router = express.Router();
 
+// Users
 router.post('/users', async (req, res) => {
     const userData = req.body;
     try {
@@ -47,6 +48,18 @@ router.delete('/users/:id', async (req, res) => {
         res.json({ message: 'User deleted successfully' });
     } catch (err) {
         console.error('Error deleting user', err);
+        res.status(500).json({message: 'Server error'});
+    }
+});
+
+// Events
+router.get('/events', async (req, res) => {
+    try {
+        const eventsCollection = await getEventsCollection();
+        const events = await eventsCollection.find().toArray();
+        res.json(events);
+    } catch (err) {
+        console.error('Error retrieving events', err); 
         res.status(500).json({message: 'Server error'});
     }
 });

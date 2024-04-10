@@ -4,6 +4,7 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env')});
 
 const URI = process.env.MONGODB_URI;
+const db_name = process.env.DATABASE_NAME;
 let db;
 
 async function connectToDB() {
@@ -21,7 +22,7 @@ async function connectToDB() {
         console.log('Connected to MongoDB');
 
         // return client.db();
-        db = client.db('faddis_footy');
+        db = client.db(db_name);
     } catch (err) {
         console.error('Error connecting to MongoDB', err);
         throw err;

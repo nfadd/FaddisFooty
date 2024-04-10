@@ -1,5 +1,6 @@
 // Imports
 const express = require('express');
+const cors = require('cors');
 const { connectToDB } = require('./db');
 const userRoutes = require('./routes/userRoutes');
 
@@ -11,11 +12,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(express.json());
+app.use(cors());
 
 const startServer = async () => {
     try {
-        connectToDB();
+        await connectToDB();
 
         // Define routes and other server logic here
         app.use('/api', userRoutes);
