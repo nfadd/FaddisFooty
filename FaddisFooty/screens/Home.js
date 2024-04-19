@@ -3,40 +3,36 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AgendaList, CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import COLORS from '../constants/colors';
 import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
 import AgendaItem from '../components/AgendaItem';
+import { fetchUserId, fetchEvents } from '../utils/fetch';
 
 const Home = ({ route }) => {
-
     const { userId } = route.params;
 
-    const serv_addr = process.env.API_HOST || 'http://localhost:3000';
     const [user, setUser] = useState({});
     const [events, setEvents] = useState([]);
 
     useEffect(() => {
-        // Users
-        const fetchUser = async () => {
-            try {
-                const response = await axios.get(`${serv_addr}/api/users/${userId}`);
-                setUser(response.data);
+        const getUserData = async () => {
+            try{
+                const userData = await fetchUserId(userId);
+                setUser(userData);
             } catch (error) {
                 console.error('Error fetching users', error);
             }
         };
-        
-        // Events
-        const fetchEvents = async () => {
-            try {
-                const response = await axios.get(`${serv_addr}/api/events`);
-                setEvents(response.data);
+
+        const getEventData = async () => {
+            try{
+                const eventData = await fetchEvents();
+                setEvents(eventData);
             } catch (error) {
                 console.error('Error fetching events', error);
             }
         };
 
-        fetchUser();
-        fetchEvents();
+        getUserData();
+        getEventData();
     }, [userId]);
 
     const renderItem = useCallback(item => {

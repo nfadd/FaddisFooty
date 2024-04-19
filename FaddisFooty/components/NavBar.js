@@ -24,6 +24,7 @@ const NavBar = ({ route }) => {
         <Tab.Screen
             name='Train'
             component={Home}
+            initialParams={route.params}
             options={{
                 ...options.screen,
                 tabBarIcon: () => (
@@ -34,6 +35,7 @@ const NavBar = ({ route }) => {
         <Tab.Screen
             name='Calendar'
             component={Home}
+            initialParams={route.params}
             options={{
                 ...options.screen,
                 tabBarIcon: () => (
@@ -44,6 +46,7 @@ const NavBar = ({ route }) => {
         <Tab.Screen
             name='Chat'
             component={Home}
+            initialParams={route.params}
             options={{
                 ...options.screen,
                 tabBarIcon: () => (
@@ -54,6 +57,7 @@ const NavBar = ({ route }) => {
         <Tab.Screen
             name='Profile'
             component={Home}
+            initialParams={route.params}
             options={{
                 ...options.screen,
                 tabBarIcon: () => (
