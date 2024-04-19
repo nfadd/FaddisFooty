@@ -4,13 +4,67 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import COLORS from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../components/Button';
+import axios from 'axios';
 
 const Login = ({ navigation }) => {
+    const serv_addr = process.env.API_HOST || 'http://localhost:3000';
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [role, setRole] = useState('');
     const [isPasswordShown, setIsPasswordShown] = useState(false);
+
+    const user = {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+        role: role
+    }
+
+    const sendLoginDetails = async () => {
+        try {
+            const response = await axios.post(`${serv_addr}/api/users`, user);
+            console.log('Login Successful:', response.data);
+            navigation.navigate('NavBar', { userId: response.data.insertedId });
+        } catch (err) {
+            console.error('Error sending login details', err.response.data);
+            throw err;
+        }
+    };
 
   return (
     <SafeAreaView style={{flex: 1}}>
         <View style={{flex: 1, marginHorizontal: 22}}>
+            <View style={{marginBottom: 12}}>
+                <Text style={styles.title}>First Name</Text>
+
+                <View style={styles.textbox}>
+                    <TextInput 
+                        placeholder='Enter your first name'
+                        placeholderTextColor={COLORS.black}
+                        value={firstName}
+                        onChangeText={setFirstName}
+                    >
+                    </TextInput>
+                </View>
+            </View>
+
+            <View style={{marginBottom: 12}}>
+                <Text style={styles.title}>Last Name</Text>
+
+                <View style={styles.textbox}>
+                    <TextInput 
+                        placeholder='Enter your last name'
+                        placeholderTextColor={COLORS.black}
+                        value={lastName}
+                        onChangeText={setLastName}
+                    >
+                    </TextInput>
+                </View>
+            </View>
+
             <View style={{marginBottom: 12}}>
                 <Text style={styles.title}>Email address</Text>
 
@@ -18,7 +72,10 @@ const Login = ({ navigation }) => {
                     <TextInput 
                         placeholder='Enter your email address'
                         placeholderTextColor={COLORS.black}
-                        keyboardType='email-address'>
+                        keyboardType='email-address'
+                        value={email}
+                        onChangeText={setEmail}
+                    >
                     </TextInput>
                 </View>
             </View>
@@ -30,7 +87,10 @@ const Login = ({ navigation }) => {
                     <TextInput 
                         placeholder='Enter your password'
                         placeholderTextColor={COLORS.black}
-                        secureTextEntry={!isPasswordShown}>
+                        secureTextEntry={!isPasswordShown}
+                        value={password}
+                        onChangeText={setPassword}
+                    >
                     </TextInput>
 
                     <TouchableOpacity 
@@ -52,7 +112,7 @@ const Login = ({ navigation }) => {
 
             <Button
                 text='Login'
-                onPress={() => navigation.navigate('NavBar')}
+                onPress={sendLoginDetails}
                 filled
                 style={{
                     marginTop: 18,

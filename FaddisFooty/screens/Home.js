@@ -6,33 +6,38 @@ import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import AgendaItem from '../components/AgendaItem';
 
-const Home = () => {
+const Home = ({ route }) => {
 
-    const serv_addr = process.env['API_HOST'] || 'http://localhost:3000';
-    const [users, setUsers] = useState([]);
+    const { userId } = route.params;
+
+    const serv_addr = process.env.API_HOST || 'http://localhost:3000';
+    const [user, setUser] = useState({});
     const [events, setEvents] = useState([]);
 
     useEffect(() => {
         // Users
-        const users_url = `${serv_addr}/api/users`;
-        axios.get(users_url)
-            .then((response) => {
-                setUsers(response.data);
-            })
-            .catch(error => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get(`${serv_addr}/api/users/${userId}`);
+                setUser(response.data);
+            } catch (error) {
                 console.error('Error fetching users', error);
-            });
+            }
+        };
         
         // Events
-        const events_url = `${serv_addr}/api/events`;
-        axios.get(events_url)
-            .then((response) => {
+        const fetchEvents = async () => {
+            try {
+                const response = await axios.get(`${serv_addr}/api/events`);
                 setEvents(response.data);
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error fetching events', error);
-            });
-    }, []);
+            }
+        };
+
+        fetchUser();
+        fetchEvents();
+    }, [userId]);
 
     const renderItem = useCallback(item => {
         return <AgendaItem item={item}/>;
@@ -42,9 +47,7 @@ const Home = () => {
         <SafeAreaView style={{flex: 1}}>
             <View>
                 <Text style={styles.hello}>Hello,</Text>
-                {users.length > 0 && (
-                    <Text style={styles.userName}>{users[0].first_name} {users[0].last_name}</Text>
-                )}
+                <Text style={styles.userName}>{user.firstName} {user.lastName}</Text>
                 <Image
                     source={require('../assets/nick_faddis.jpeg')}
                     style={styles.userImage} 
@@ -53,17 +56,16 @@ const Home = () => {
             <CalendarProvider
                 date={getCurrentDate()}
                 showTodayButton
+                style={styles.calendar}
             >
                 <WeekCalendar 
                 />
-                {users.length > 0 && (
-                    <AgendaList 
-                        sections={[{title: 'Events', data: events}]}
-                        keyExtractor={event => event._id}
-                        renderItem={renderItem}
-                        pagingEnabled
-                    />
-                )}
+                <AgendaList 
+                    sections={[{title: 'Events', data: events}]}
+                    keyExtractor={event => event._id}
+                    renderItem={renderItem}
+                    pagingEnabled
+                />
             </CalendarProvider>
         </SafeAreaView>
     )
@@ -100,6 +102,9 @@ const styles = StyleSheet.create({
         position: 'absolute',
         alignSelf: 'flex-end',
         right: 10
+    },
+    calendar: {
+        
     }
 });
 

@@ -1,6 +1,7 @@
 import { View, Text, Alert, TouchableOpacity } from 'react-native'
 import React, { useCallback } from 'react'
 import Button from './Button';
+import isEmpty from 'lodash/isEmpty';
 
 const AgendaItem = (props) => {
     const {item} = props;

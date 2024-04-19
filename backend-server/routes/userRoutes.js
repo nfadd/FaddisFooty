@@ -1,5 +1,6 @@
 const express = require('express');
 const { getUsersCollection, getEventsCollection } = require('../db');
+const { ObjectId } = require('mongodb');
 
 const router = express.Router();
 
@@ -8,8 +9,13 @@ router.post('/users', async (req, res) => {
     const userData = req.body;
     try {
         const usersCollection = await getUsersCollection();
-        const result = await usersCollection.insertOne(userData);
-        res.json(result.ops[0]);
+        const existingUser = await usersCollection.findOne({ email: userData.email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'User already exists' });
+        } else {
+            const result = await usersCollection.insertOne(userData);
+            return res.json(result);
+        }
     } catch (err) {
         console.error('Error creating user', err);
         res.status(500).json({message: 'Server error'});
@@ -23,6 +29,23 @@ router.get('/users', async (req, res) => {
         res.json(users);
     } catch (err) {
         console.error('Error retrieving users', err); 
+        res.status(500).json({message: 'Server error'});
+    }
+});
+
+router.get('/users/:id', async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const usersCollection = await getUsersCollection();
+        const user = await usersCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        } else {
+            delete user.password;
+            res.json(user);
+        }
+    } catch (err) {
+        console.error('Error retrieving user', err); 
         res.status(500).json({message: 'Server error'});
     }
 });

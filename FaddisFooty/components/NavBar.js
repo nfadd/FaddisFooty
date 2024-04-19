@@ -7,12 +7,13 @@ import COLORS from '../constants/colors';
 
 const Tab = createBottomTabNavigator();
 
-const NavBar = () => {
+const NavBar = ({ route }) => {
   return (
     <Tab.Navigator initalRouteName={'Home'}>
         <Tab.Screen
             name='Home'
             component={Home}
+            initialParams={route.params}
             options={{
                 ...options.screen,
                 tabBarIcon: () => (
