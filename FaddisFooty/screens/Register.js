@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import COLORS from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +15,9 @@ const Register = ({ navigation }) => {
     const [password, setPassword] = useState('');
     const [confirmedPassword, setConfirmedPassword] = useState('');
     const [role, setRole] = useState('');
+    const [errors, setErrors] = useState({});
+    const [isFormValid, setIsFormValid] = useState(false);
+    const [isRegisterClicked, setIsRegisterClicked] = useState(false);
 
     const user = {
         firstName: firstName,
@@ -24,14 +27,59 @@ const Register = ({ navigation }) => {
         role: role
     };
 
+    useEffect(() => {
+        validateForm();
+    }, [firstName, lastName, email, password, confirmedPassword, role]);
+
+    const validateForm = () => {
+        let errors = {};
+
+        if (!firstName) {
+            errors.firstName = '*First name is required';
+        }
+
+        if (!lastName) {
+            errors.lastName = '*Last name is required';
+        }
+
+        if (!email) {
+            errors.email = '*Email is required';
+        } else if (!/\S+@\S+\.\S+/.test(email)) {
+            errors.email = '*Invalid email';
+        }
+
+        if (!password) {
+            errors.password = '*Password is required';
+        } else if (password.length < 6) {
+            errors.password = '*Password must be at least 6 characters';
+        }
+
+        if (!confirmedPassword) {
+            errors.confirmedPassword = '*Confirmation is required';
+        }
+
+        if (password !== confirmedPassword) {
+            errors.confirmedPassword = '*Passwords do not match';
+        }
+
+        setErrors(errors);
+        setIsFormValid(Object.keys(errors).length === 0);
+    };
+
     const sendRegisterDetails = async () => {
-        try {
-            const response = await axios.post(`${serv_addr}/api/register`, user);
-            console.log('Registration Successful:', response.data);
-            navigation.navigate('NavBar', { userId: response.data.insertedId });
-        } catch (err) {
-            console.error('Error sending registration details', err.response.data);
-            throw err;
+        setIsRegisterClicked(true);
+
+        if (isFormValid) {
+            try {
+                const response = await axios.post(`${serv_addr}/api/register`, user);
+                console.log('Registration Successful:', response.data);
+                navigation.navigate('NavBar', { userId: response.data.insertedId });
+            } catch (err) {
+                console.error('Error sending registration details', err.response.data);
+                throw err;
+            }
+        } else {
+            console.log('Incorrect information');
         }
     };
 
@@ -50,6 +98,9 @@ const Register = ({ navigation }) => {
                     >
                     </TextInput>
                 </View>
+                {isRegisterClicked && errors.firstName && (
+                    <Text style={styles.error}>{errors.firstName}</Text>
+                )}
             </View>
 
             <View style={{marginBottom: 12}}>
@@ -64,6 +115,9 @@ const Register = ({ navigation }) => {
                     >
                     </TextInput>
                 </View>
+                {isRegisterClicked && errors.lastName && (
+                    <Text style={styles.error}>{errors.lastName}</Text>
+                )}
             </View>
 
             <View style={{marginBottom: 12}}>
@@ -79,6 +133,9 @@ const Register = ({ navigation }) => {
                     >
                     </TextInput>
                 </View>
+                {isRegisterClicked && errors.email && (
+                    <Text style={styles.error}>{errors.email}</Text>
+                )}
             </View>
 
             <View style={{marginBottom: 12}}>
@@ -88,7 +145,12 @@ const Register = ({ navigation }) => {
                     <TextInput 
                         placeholder='Enter your password'
                         placeholderTextColor={COLORS.black}
+                        value={password}
                         onChangeText={text => setPassword(text)}
+                        onEndEditing={({ nativeEvent }) => {
+                            // Update the password state with the latest value from nativeEvent
+                            setPassword(nativeEvent.text || '');
+                        }}
                         secureTextEntry={!isPasswordShown}
                     >
                     </TextInput>
@@ -108,6 +170,9 @@ const Register = ({ navigation }) => {
                             }
                     </TouchableOpacity>
                 </View>
+                {isRegisterClicked && errors.password && (
+                    <Text style={styles.error}>{errors.password}</Text>
+                )}
             </View>
 
             <View style={{marginBottom: 12}}>
@@ -117,15 +182,14 @@ const Register = ({ navigation }) => {
                     <TextInput 
                         placeholder='Confirm your password'
                         placeholderTextColor={COLORS.black}
+                        value={confirmedPassword}
                         onChangeText={text => setConfirmedPassword(text)}
                         secureTextEntry={true}>
                     </TextInput>
-                    {
-                        password !== confirmedPassword ? (
-                            <Text style={{color:'red'}}>Passwords do not match</Text>
-                        ) : null
-                    }
                 </View>
+                {isRegisterClicked && confirmedPassword && (
+                    <Text style={styles.error}>{errors.confirmedPassword}</Text>
+                )}
             </View>
 
             <Button
@@ -158,6 +222,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 400,
         marginVertical: 8
+    },
+    error: {
+        fontSize: 14,
+        color:'red',
+        marginVertical: 2
     }
 })
 
