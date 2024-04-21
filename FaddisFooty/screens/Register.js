@@ -48,10 +48,18 @@ const Register = ({ navigation }) => {
             errors.email = '*Invalid email';
         }
 
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
         if (!password) {
             errors.password = '*Password is required';
-        } else if (password.length < 6) {
-            errors.password = '*Password must be at least 6 characters';
+        } else if (password.length < minLength) {
+            errors.password = '*Password must be at least 8 characters';
+        } else if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol) {
+            errors.password = '*Password must include at least one:\n- uppercase letter\n- lowercase letter\n- number\n- special character';
         }
 
         if (!confirmedPassword) {

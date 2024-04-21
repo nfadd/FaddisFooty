@@ -23,7 +23,7 @@ router.post('/register', async (req, res) => {
         }
 
         // Hash password
-        const hash = hashPassword(userData.password);
+        const hash = await hashPassword(userData.password);
         if (!hash) {
             console.error('Error hashing password:', err);
         }
