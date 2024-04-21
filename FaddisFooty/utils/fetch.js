@@ -16,7 +16,8 @@ const fetchUserEmail = async (user) => {
         const response = await axios.post(`${serv_addr}/api/login`, user);
         return response.data;
     } catch (error) {
-        console.error('Error logging in', error);
+        // console.error('Error fetching login', error);
+        return error.response.data.message;
     }
 };
 

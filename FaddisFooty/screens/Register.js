@@ -79,7 +79,7 @@ const Register = ({ navigation }) => {
                 throw err;
             }
         } else {
-            console.log('Incorrect information');
+            console.log('Unfilled registration information');
         }
     };
 

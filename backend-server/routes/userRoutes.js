@@ -6,6 +6,13 @@ const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
+async function hashPassword(password) {
+    const saltRounds = 10;
+    const hash = await bcrypt.hash(password, saltRounds);
+
+    return hash;
+};
+
 router.post('/register', async (req, res) => {
     const userData = req.body;
     try {
@@ -16,8 +23,7 @@ router.post('/register', async (req, res) => {
         }
 
         // Hash password
-        const saltRounds = 10;
-        const hash = await bcrypt.hash(userData.password, saltRounds);
+        const hash = hashPassword(userData.password);
         if (!hash) {
             console.error('Error hashing password:', err);
         }
@@ -67,12 +73,12 @@ router.post('/login', async (req, res) => {
         const usersCollection = await getUsersCollection();
         const user = await usersCollection.findOne({email: email});
         if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: '*Invalid email or password' });
         }
 
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ message: '*Invalid email or password' });
         }
 
         delete user.password;

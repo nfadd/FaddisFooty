@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import COLORS from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,20 +10,52 @@ const Login = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordShown, setIsPasswordShown] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [isFormValid, setIsFormValid] = useState(false);
+    const [isLoginClicked, setIsLoginClicked] = useState(false);
 
     const user = {
         email: email,
         password: password,
     }
 
+    useEffect(() => {
+        validateForm();
+    }, [email, password]);
+
+    const validateForm = () => {
+        let errors = {};
+        
+        if (!email) {
+            errors.email = '*Email is required';
+        }
+
+        if (!password) {
+            errors.password = '*Password is required';
+        }
+
+        setErrors(errors);
+        setIsFormValid(Object.keys(errors).length === 0);
+    };
+
     const sendLoginDetails = async () => {
-        try {
-            const response = await fetchUserEmail(user);
-            console.log('Login Successful:', response);
-            navigation.navigate('NavBar', { userId: response._id });
-        } catch (err) {
-            console.error('Error sending login details', err);
-            throw err;
+        setIsLoginClicked(true);
+
+        if (isFormValid) {
+            try {
+                const response = await fetchUserEmail(user);
+                if (response === '*Invalid email or password'){
+                    setErrors({login: response});
+                } else {
+                    console.log('Login Successful');
+                    navigation.navigate('NavBar', { userId: response._id });
+                }
+            } catch (err) {
+                console.error('Error sending login details', err);
+                throw err;
+            }
+        } else {
+            console.log('Unfilled login information');
         }
     };
 
@@ -43,6 +75,9 @@ const Login = ({ navigation }) => {
                     >
                     </TextInput>
                 </View>
+                {isLoginClicked && errors.email && (
+                    <Text style={styles.error}>{errors.email}</Text>
+                )}
             </View>
 
             <View style={{marginBottom: 12}}>
@@ -73,8 +108,14 @@ const Login = ({ navigation }) => {
                             }
                     </TouchableOpacity>
                 </View>
+                {isLoginClicked && errors.password && (
+                    <Text style={styles.error}>{errors.password}</Text>
+                )}
             </View>
 
+            {isLoginClicked && errors.login && (
+                <Text style={styles.error}>{errors.login}</Text>
+            )}
             <Button
                 text='Login'
                 onPress={sendLoginDetails}
@@ -104,6 +145,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 400,
         marginVertical: 8
+    },
+    error: {
+        fontSize: 14,
+        color:'red',
+        marginVertical: 2
     }
 })
 
