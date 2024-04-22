@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Register, Login, Welcome, Home } from './screens';
+import { Register, Login, Welcome, Home, Train } from './screens';
 import { StyleSheet } from 'react-native';
 import NavBar from './components/NavBar';
 
@@ -16,6 +16,7 @@ export default function App() {
         <Stack.Screen name="Login" component={Login} options={options.screen}/>
         <Stack.Screen name="Register" component={Register} options={options.screen}/>
         <Stack.Screen name="Home" component={Home} options={options.screen}/>
+        <Stack.Screen name="Train" component={Train} options={options.screen}/>
         <Stack.Screen name="NavBar" component={NavBar} options={options.screen}/>
       </Stack.Navigator>
     </NavigationContainer>

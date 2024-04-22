@@ -2,7 +2,7 @@ import { StyleSheet, Image } from 'react-native';
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, FontAwesome, AntDesign } from '@expo/vector-icons';
-import { Home } from '../screens';
+import { Home, Train } from '../screens';
 import COLORS from '../constants/colors';
 
 const Tab = createBottomTabNavigator();
@@ -23,7 +23,7 @@ const NavBar = ({ route }) => {
         />
         <Tab.Screen
             name='Train'
-            component={Home}
+            component={Train}
             initialParams={route.params}
             options={{
                 ...options.screen,
