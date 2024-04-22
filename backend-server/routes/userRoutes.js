@@ -1,5 +1,5 @@
 const express = require('express');
-const { getUsersCollection, getEventsCollection } = require('../db');
+const { getUsersCollection, getEventsCollection, getDrillsCollection } = require('../db');
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -124,6 +124,17 @@ router.get('/events', async (req, res) => {
         res.json(events);
     } catch (err) {
         console.error('Error retrieving events', err); 
+        res.status(500).json({message: 'Server error'});
+    }
+});
+
+router.get('/drills', async (req, res) => {
+    try {
+        const drillsCollection = await getDrillsCollection();
+        const drills = await drillsCollection.find().toArray();
+        res.json(drills);
+    } catch (err) {
+        console.error('Error retrieving drills', err); 
         res.status(500).json({message: 'Server error'});
     }
 });

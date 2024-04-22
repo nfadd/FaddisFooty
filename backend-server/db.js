@@ -49,4 +49,8 @@ async function getEventsCollection() {
     return db.collection('events');
 }
 
-module.exports = { connectToDB, getUsersCollection, getPlayersCollection, getCoachesCollection, getSubscriptionsCollection, getEventsCollection };
+async function getDrillsCollection() {
+    return db.collection('drills');
+}
+
+module.exports = { connectToDB, getUsersCollection, getPlayersCollection, getCoachesCollection, getSubscriptionsCollection, getEventsCollection, getDrillsCollection };
