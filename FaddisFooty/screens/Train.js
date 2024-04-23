@@ -10,13 +10,7 @@ const PaginationDots = ({ data, activeIndex }) => {
     return (
         <View style={styles.paginationContainer}>
             {data.map((_, index) => (
-                <View key={index} style={styles.paginationDot}>
-                    {index === activeIndex? (
-                        <View style={styles.activeDot} />
-                    ) : (
-                        <View style={styles.inactiveDot} />
-                    )}
-                </View>
+                <View key={index} style={index === activeIndex ? styles.activeDot : styles.inactiveDot}></View>
             ))}
         </View>
     );
@@ -26,8 +20,13 @@ const Train = () => {
     const { width, height } = Dimensions.get('window');
     const animation = useRef(new Animated.Value(0)).current;
     const searchBarRef = useRef(null);
-    const [currentPage, setCurrentPage] = useState(0);
+    const [currentDrillPage, setCurrentDrillPage] = useState(0);
+    const [currentFitnessPage, setCurrentFitnessPage] = useState(0);
+    const [currentGymPage, setCurrentGymPage] = useState(0);
+    const [currentNutritionPage, setCurrentNutritionPage] = useState(0);
     const [drills, setDrills] = useState([]);
+    const drillsRef = useRef(null);
+
 
     const onSearch = () => {
         Animated.spring(animation, {
@@ -68,12 +67,63 @@ const Train = () => {
         }
     };
 
-    const renderItem = ({ item }) => {
+    const scrollToItem = (index) => {
+        const offset = index * (width * 0.4);
+        // console.log('scroll', offset);
+        drillsRef.current.scrollToOffset({ animated: true, offset});
+    };
+
+    const findCurrentIndexOfItem = (event, section) => {
+        const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
+        const currentIndex = Math.floor(contentOffset.x / (width * 0.4));
+        // console.log('calculate', contentOffset.x, width * 0.3, currentIndex);
+        if (section === 'drills') {
+            setCurrentDrillPage(currentIndex);
+        } else if (section === 'fitness') {
+            setCurrentFitnessPage(currentIndex);
+        } else if (section === 'gym') {
+            setCurrentGymPage(currentIndex);
+        } else if (section === 'nutrition') {
+            setCurrentNutritionPage(currentIndex);
+        }
+    };
+
+    const renderItem = ({ item, index }) => {
+        const scale = new Animated.Value(1);
+        const shadowOpacity = new Animated.Value(0);
+
+        const handleFocus = (isFocused) => {
+            Animated.parallel([
+                Animated.spring(scale, {
+                    toValue: isFocused ? 1.1 : 1,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(shadowOpacity, {
+                    toValue: isFocused ? 0.2 : 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+            ]).start();
+        };
+
         return (
-            <View style={styles.card}>
-                <Text style={styles.itemTitle}>{item.title}</Text>
-                <Text>{item.description}</Text>
-            </View>
+            <Animated.View
+                style={[
+                    styles.card,
+                    {
+                        // width: index === 2 ? focusedItemWidth : itemWidth,
+                        transform: [{ scale }],
+                        shadowOpacity,
+                    },
+                ]}
+                onFocus={() => handleFocus(true)}
+                onBlur={() => handleFocus(false)}
+            >
+                <View>
+                    <Text style={styles.itemTitle}>{item.title}</Text>
+                    <Text>{item.description}</Text>
+                </View>
+            </Animated.View>
         );
     };
 
@@ -132,20 +182,21 @@ const Train = () => {
                     <Text>Drills</Text>
                     <FlatList
                         data={drills}
+                        ref={drillsRef}
                         renderItem={renderItem}
                         keyExtractor={(item) => item._id}
                         horizontal
+                        // pagingEnabled
                         showsHorizontalScrollIndicator={false}
-                        onScroll={(event) => {
-                            const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-                            const currentIndex = Math.floor(contentOffset.y / layoutMeasurement.height);
-                            setCurrentPage(currentIndex);
-                        }}
+                        onScroll={(event) => findCurrentIndexOfItem(event, "drills")}
+                        snapToInterval={width*.4}
+                        decelerationRate="fast"
+                        onMomentumScrollEnd={() => scrollToItem(currentDrillPage)}
                     >
                     </FlatList>
                     <PaginationDots 
                         data={drills}
-                        activeIndex={currentPage}
+                        activeIndex={currentDrillPage}
                     />
                 </View>
                 
@@ -157,17 +208,14 @@ const Train = () => {
                         renderItem={renderItem}
                         keyExtractor={(item) => item.id}
                         horizontal
+                        pagingEnabled
                         showsHorizontalScrollIndicator={false}
-                        onScroll={(event) => {
-                            const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-                            const currentIndex = Math.floor(contentOffset.y / layoutMeasurement.height);
-                            setCurrentPage(currentIndex);
-                        }}
+                        onScroll={(event) => findCurrentIndexOfItem(event, "fitness")}
                     >
                     </FlatList>
                     <PaginationDots 
                         data={DATA}
-                        activeIndex={currentPage}
+                        activeIndex={currentFitnessPage}
                     />
                 </View>
 
@@ -180,16 +228,12 @@ const Train = () => {
                         keyExtractor={(item) => item.id}
                         horizontal
                         showsHorizontalScrollIndicator={false}
-                        onScroll={(event) => {
-                            const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-                            const currentIndex = Math.floor(contentOffset.y / layoutMeasurement.height);
-                            setCurrentPage(currentIndex);
-                        }}
+                        onScroll={(event) => findCurrentIndexOfItem(event, "gym")}
                     >
                     </FlatList>
                     <PaginationDots 
                         data={DATA}
-                        activeIndex={currentPage}
+                        activeIndex={currentGymPage}
                     />
                 </View>
 
@@ -202,16 +246,12 @@ const Train = () => {
                         keyExtractor={(item) => item.id}
                         horizontal
                         showsHorizontalScrollIndicator={false}
-                        onScroll={(event) => {
-                            const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-                            const currentIndex = Math.floor(contentOffset.y / layoutMeasurement.height);
-                            setCurrentPage(currentIndex);
-                        }}
+                        onScroll={(event) => findCurrentIndexOfItem(event, "nutrition")}
                     >
                     </FlatList>
                     <PaginationDots 
                         data={DATA}
-                        activeIndex={currentPage}
+                        activeIndex={currentNutritionPage}
                     />
                 </View>
             </ScrollView>
@@ -270,21 +310,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 10,
     },
-    paginationDot: {
+    activeDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#333',
+        marginHorizontal: 5,
+    },
+    inactiveDot: {
         width: 8,
         height: 8,
         borderRadius: 4,
         backgroundColor: '#ccc',
         marginHorizontal: 5,
-    },
-    activeDot: {
-        backgroundColor: '#333',
-    },
-    inactiveDot: {
-        backgroundColor: '#000',
-    },
-    sectionsContainer: {
-        minHeight: 50
     },
 })
 
