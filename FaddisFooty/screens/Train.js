@@ -17,20 +17,26 @@ const PaginationDots = ({ data, activeIndex }) => {
 };
 
 const Train = () => {
-    const { width, height } = Dimensions.get('window');
-    const animation = useRef(new Animated.Value(0)).current;
+    const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+    const searchAnimation = useRef(new Animated.Value(0)).current;
     const searchBarRef = useRef(null);
+    const [activeSection, setActiveSection] = useState("drills");
     const [currentDrillPage, setCurrentDrillPage] = useState(0);
     const [currentFitnessPage, setCurrentFitnessPage] = useState(0);
-    const [currentGymPage, setCurrentGymPage] = useState(0);
+    const [currentWeightsPage, setCurrentWeightsPage] = useState(0);
     const [currentNutritionPage, setCurrentNutritionPage] = useState(0);
     const [drills, setDrills] = useState([]);
+    const scrollViewRef = useRef(null);
     const drillsRef = useRef(null);
+    const fitnessRef = useRef(null);
+    const weightsRef = useRef(null);
+    const nutritionRef = useRef(null);
 
 
     const onSearch = () => {
-        Animated.spring(animation, {
-            toValue: width * 1,
+        Animated.spring(searchAnimation, {
+            toValue: screenWidth * 1,
             useNativeDriver: true,
         }).start();
         searchBarRef.current.focus();
@@ -67,57 +73,103 @@ const Train = () => {
         }
     };
 
+    const handleScroll = (event) => {
+        const offsetY = event.nativeEvent.contentOffset.y;
+        if (offsetY < screenHeight * (0.515 / 2)) {
+            setActiveSection("drills");
+        } else if (offsetY >= screenHeight * (0.515 / 2) && offsetY < screenHeight * (0.515 + (0.515 / 3))) {
+            setActiveSection("fitness");
+        } else if (offsetY >= screenHeight * (0.515 + (0.515 / 3)) && offsetY < screenHeight * (1.0275 + (1.0275 / 4))) {
+            setActiveSection("weights");
+        } else {
+            setActiveSection("nutrition");
+        }
+    };
+
     const scrollToItem = (index) => {
-        const offset = index * (width * 0.4);
+        const itemWidth = screenWidth * 0.6 + 20;
+        const offset = index * itemWidth;
+        // const offset = index * itemWidth - (screenWidth / 2) + itemWidth / 2;
         // console.log('scroll', offset);
         drillsRef.current.scrollToOffset({ animated: true, offset});
     };
 
-    const findCurrentIndexOfItem = (event, section) => {
-        const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-        const currentIndex = Math.floor(contentOffset.x / (width * 0.4));
-        // console.log('calculate', contentOffset.x, width * 0.3, currentIndex);
-        if (section === 'drills') {
-            setCurrentDrillPage(currentIndex);
-        } else if (section === 'fitness') {
-            setCurrentFitnessPage(currentIndex);
-        } else if (section === 'gym') {
-            setCurrentGymPage(currentIndex);
-        } else if (section === 'nutrition') {
-            setCurrentNutritionPage(currentIndex);
+    const scrollToSection = (ref, section) => {
+        switch (section) {
+            case "drills":
+                ref.current.scrollTo({ animated: true, y: 0 });
+                break;
+            case "fitness":
+                ref.current.scrollTo({ animated: true, y: screenHeight * 0.515 });
+                break;
+            case "weights":
+                ref.current.scrollTo({ animated: true, y: screenHeight * 1.0275 });
+                break;
+            case "nutrition":
+                ref.current.scrollToEnd({ animated: true });
+                break;
+            default:
+                break;
         }
     };
 
-    const renderItem = ({ item, index }) => {
-        const scale = new Animated.Value(1);
-        const shadowOpacity = new Animated.Value(0);
+    const findCurrentIndexOfItem = (event, section) => {
+        const { contentOffset } = event.nativeEvent;
+        const currentIndex = Math.floor(contentOffset.x / (screenWidth * 0.6 - 20));
+        switch (section) {
+            case "drills":
+                setCurrentDrillPage(currentIndex);
+                break;
+            case "fitness":
+                setCurrentFitnessPage(currentIndex);
+                break;
+            case "weights":
+                setCurrentWeightsPage(currentIndex);
+                break;
+            case "nutrition":
+                setCurrentNutritionPage(currentIndex);
+                break;
+            default:
+                break;
+        }
+    };
 
-        const handleFocus = (isFocused) => {
-            Animated.parallel([
-                Animated.spring(scale, {
-                    toValue: isFocused ? 1.1 : 1,
-                    useNativeDriver: true,
-                }),
-                Animated.timing(shadowOpacity, {
-                    toValue: isFocused ? 0.2 : 0,
-                    duration: 200,
-                    useNativeDriver: true,
-                }),
-            ]).start();
-        };
+    const animate = (animatedWidth, animatedScale) => {
+        Animated.spring(animatedWidth, {
+            toValue: screenWidth * 0.7,
+            useNativeDriver: true,
+        }).start();
+        Animated.spring(animatedScale, {
+            toValue: 1.1,
+            useNativeDriver: true,
+        }).start();
+    }
+
+    const renderItem =  (item, index, ref, currentPage, setCurrentPage) => {
+        const animatedWidth = new Animated.Value(screenWidth * 0.6);
+        const animatedScale = new Animated.Value(1);
+
+        // if (section === "drills" && index === currentDrillPage) {
+        //     animate(animatedWidth, animatedScale);
+        // } else if (section === "fitness" && index === currentFitnessPage) {
+        //     animate(animatedWidth, animatedScale);
+        // } else if (section === "weights" && index === currentWeightsPage) {
+        //     animate(animatedWidth, animatedScale);
+        // } else if (section === "nutrition" && index === currentNutritionPage) {
+        //     animate(animatedWidth, animatedScale);
+        // }
+
+        if (index === currentPage) {
+            animate(animatedWidth, animatedScale);
+        }
+
 
         return (
             <Animated.View
-                style={[
-                    styles.card,
-                    {
-                        // width: index === 2 ? focusedItemWidth : itemWidth,
-                        transform: [{ scale }],
-                        shadowOpacity,
-                    },
-                ]}
-                onFocus={() => handleFocus(true)}
-                onBlur={() => handleFocus(false)}
+                style={{
+                        ...styles.card,
+                        transform: [{ scale: animatedScale }],
+                }}
             >
                 <View>
                     <Text style={styles.itemTitle}>{item.title}</Text>
@@ -152,30 +204,37 @@ const Train = () => {
         <View style={styles.categories}>
             <Button
                 text='Drills'
-                filled
+                filled={activeSection === "drills" ? false : true}
                 style={styles.category}
+                onPress={() => scrollToSection(scrollViewRef, "drills")}
             />
             <Button
                 text='Fitness'
-                // filled
+                filled={activeSection === "fitness" ? false : true}
                 style={styles.category}
+                onPress={() => scrollToSection(scrollViewRef, "fitness")}
             />
             <Button
                 text='Weights'
-                // filled
+                filled={activeSection === "weights" ? false : true}
                 style={styles.category}
+                onPress={() => scrollToSection(scrollViewRef, "weights")}
             />
             <Button
                 text='Nutrition'
-                // filled
+                filled={activeSection === "nutrition" ? false : true}
                 style={styles.category}
+                onPress={() => scrollToSection(scrollViewRef, "nutrition")}
             />
         </View>
 
         <View>
             <ScrollView
-                contentContainerStyle={{ paddingBottom: height*.15}} 
+                ref={scrollViewRef}
+                contentContainerStyle={{ paddingBottom: screenHeight*.15}} 
                 showsVerticalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
             >
                 {/* Drills section */}
                 <View style={styles.drills}>
@@ -183,15 +242,16 @@ const Train = () => {
                     <FlatList
                         data={drills}
                         ref={drillsRef}
-                        renderItem={renderItem}
+                        renderItem={({ item, index }) => renderItem(item, index, drillsRef, currentDrillPage)}
                         keyExtractor={(item) => item._id}
                         horizontal
                         // pagingEnabled
                         showsHorizontalScrollIndicator={false}
                         onScroll={(event) => findCurrentIndexOfItem(event, "drills")}
-                        snapToInterval={width*.4}
+                        snapToInterval={screenWidth * 0.6 + 20}
                         decelerationRate="fast"
                         onMomentumScrollEnd={() => scrollToItem(currentDrillPage)}
+                        contentContainerStyle={styles.cardContainer}
                     >
                     </FlatList>
                     <PaginationDots 
@@ -205,12 +265,14 @@ const Train = () => {
                     <Text>Fitness</Text>
                     <FlatList
                         data={DATA}
-                        renderItem={renderItem}
+                        ref={fitnessRef}
+                        renderItem={({ item, index }) => renderItem(item, index, fitnessRef, currentFitnessPage)}
                         keyExtractor={(item) => item.id}
                         horizontal
                         pagingEnabled
                         showsHorizontalScrollIndicator={false}
                         onScroll={(event) => findCurrentIndexOfItem(event, "fitness")}
+                        contentContainerStyle={styles.cardContainer}
                     >
                     </FlatList>
                     <PaginationDots 
@@ -224,16 +286,18 @@ const Train = () => {
                     <Text>Weights</Text>
                     <FlatList
                         data={DATA}
-                        renderItem={renderItem}
+                        ref={weightsRef}
+                        renderItem={({ item, index }) => renderItem(item, index, weightsRef, currentWeightsPage)}
                         keyExtractor={(item) => item.id}
                         horizontal
                         showsHorizontalScrollIndicator={false}
-                        onScroll={(event) => findCurrentIndexOfItem(event, "gym")}
+                        onScroll={(event) => findCurrentIndexOfItem(event, "weights")}
+                        contentContainerStyle={styles.cardContainer}
                     >
                     </FlatList>
                     <PaginationDots 
                         data={DATA}
-                        activeIndex={currentGymPage}
+                        activeIndex={currentWeightsPage}
                     />
                 </View>
 
@@ -242,11 +306,13 @@ const Train = () => {
                     <Text>Nutrition</Text>
                     <FlatList
                         data={DATA}
-                        renderItem={renderItem}
+                        ref={nutritionRef}
+                        renderItem={({ item, index }) => renderItem(item, index, nutritionRef, currentNutritionPage)}
                         keyExtractor={(item) => item.id}
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         onScroll={(event) => findCurrentIndexOfItem(event, "nutrition")}
+                        contentContainerStyle={styles.cardContainer}
                     >
                     </FlatList>
                     <PaginationDots 
@@ -260,16 +326,19 @@ const Train = () => {
   )
 };
 
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
     textbox: {
         width: '80%',
         height: 48,
         borderColor: COLORS.primary,
         borderWidth: 1,
-        borderRadius: 8,
+        borderRadius: 30,
         justifyContent: 'center',
         paddingLeft: 22,
-        marginLeft: 10
+        marginLeft: 10,
+        backgroundColor: COLORS.white,
     },
     search: {
         position: 'absolute',
@@ -292,11 +361,15 @@ const styles = StyleSheet.create({
     drills: {
         marginTop: 20,
     },
+    cardContainer: {
+        paddingVertical: 20,
+        paddingRight: 20
+    },
     card: {
-        width: 150,
-        height: 300,
+        width: screenWidth * 0.6,
+        height: screenHeight * 0.4,
         padding: 20,
-        marginLeft: 10,
+        marginLeft: 20,
         borderColor: COLORS.primary,
         borderWidth: 1,
         borderRadius: 10,
