@@ -8,15 +8,23 @@ const Button = (props) => {
   const outlinedColor = COLORS.white;
   const bgColor = props.filled ? filledBgColor : outlinedColor;
   const textColor = props.filled ? COLORS.white : COLORS.primary;
+  const buttonShadow = props.shadow ? {
+    shadowColor: COLORS.secondary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 5,
+  } : null;
 
   return (
     <TouchableOpacity style={{
         ...styles.button,
         ...{backgroundColor: bgColor},
+        ...buttonShadow,
         ...props.style
         }} 
         onPress={props.onPress}>
-        <Text style={{fontSize: 18, ...{color: textColor}}}>{props.text}</Text>
+        <Text style={{...styles.buttonText, ...{color: textColor}}}>{props.text}</Text>
     </TouchableOpacity>
   )
 }
@@ -30,6 +38,9 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    buttonText: {
+        fontSize: 18,
     }
 });
 

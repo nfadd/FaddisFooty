@@ -86,12 +86,12 @@ const Train = () => {
         }
     };
 
-    const scrollToItem = (index) => {
+    const scrollToItem = (index, ref) => {
         const itemWidth = screenWidth * 0.6 + 20;
         const offset = index * itemWidth;
         // const offset = index * itemWidth - (screenWidth / 2) + itemWidth / 2;
         // console.log('scroll', offset);
-        drillsRef.current.scrollToOffset({ animated: true, offset});
+        ref.current.scrollToOffset({ animated: true, offset});
     };
 
     const scrollToSection = (ref, section) => {
@@ -145,7 +145,7 @@ const Train = () => {
         }).start();
     }
 
-    const renderItem =  (item, index, ref, currentPage, setCurrentPage) => {
+    const renderItem =  (item, index, currentPage, section) => {
         const animatedWidth = new Animated.Value(screenWidth * 0.6);
         const animatedScale = new Animated.Value(1);
 
@@ -159,7 +159,7 @@ const Train = () => {
         //     animate(animatedWidth, animatedScale);
         // }
 
-        if (index === currentPage) {
+        if (section === activeSection && index === currentPage) {
             animate(animatedWidth, animatedScale);
         }
 
@@ -179,8 +179,22 @@ const Train = () => {
         );
     };
 
+    const renderFooter = (section) => {
+        return (
+            <TouchableOpacity style={styles.footer}>
+                <Text style={styles.footerTitle}>{section}</Text>
+                <Text style={styles.footerTitle}>Database</Text>
+            </TouchableOpacity>
+        );
+    }
+
   return (
-    <SafeAreaView style={{flex: 1, marginTop: StatusBar.currentHeight || 0}}>
+    <SafeAreaView style={{
+            flex: 1, 
+            marginTop: StatusBar.currentHeight || 0,
+            backgroundColor: COLORS.white
+        }}
+    >
         <View>
             <View style={styles.textbox}>
                 <TextInput
@@ -205,24 +219,28 @@ const Train = () => {
             <Button
                 text='Drills'
                 filled={activeSection === "drills" ? false : true}
+                shadow={activeSection === "drills" ? true : false}
                 style={styles.category}
                 onPress={() => scrollToSection(scrollViewRef, "drills")}
             />
             <Button
                 text='Fitness'
                 filled={activeSection === "fitness" ? false : true}
+                shadow={activeSection === "fitness" ? true : false}
                 style={styles.category}
                 onPress={() => scrollToSection(scrollViewRef, "fitness")}
             />
             <Button
                 text='Weights'
                 filled={activeSection === "weights" ? false : true}
+                shadow={activeSection === "weights" ? true : false}
                 style={styles.category}
                 onPress={() => scrollToSection(scrollViewRef, "weights")}
             />
             <Button
                 text='Nutrition'
                 filled={activeSection === "nutrition" ? false : true}
+                shadow={activeSection === "nutrition" ? true : false}
                 style={styles.category}
                 onPress={() => scrollToSection(scrollViewRef, "nutrition")}
             />
@@ -231,7 +249,7 @@ const Train = () => {
         <View>
             <ScrollView
                 ref={scrollViewRef}
-                contentContainerStyle={{ paddingBottom: screenHeight*.15}} 
+                contentContainerStyle={{ paddingBottom: screenHeight*.25}} 
                 showsVerticalScrollIndicator={false}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
@@ -242,7 +260,7 @@ const Train = () => {
                     <FlatList
                         data={drills}
                         ref={drillsRef}
-                        renderItem={({ item, index }) => renderItem(item, index, drillsRef, currentDrillPage)}
+                        renderItem={({ item, index }) => renderItem(item, index, currentDrillPage, "drills")}
                         keyExtractor={(item) => item._id}
                         horizontal
                         // pagingEnabled
@@ -250,8 +268,9 @@ const Train = () => {
                         onScroll={(event) => findCurrentIndexOfItem(event, "drills")}
                         snapToInterval={screenWidth * 0.6 + 20}
                         decelerationRate="fast"
-                        onMomentumScrollEnd={() => scrollToItem(currentDrillPage)}
+                        onMomentumScrollEnd={() => scrollToItem(currentDrillPage, drillsRef)}
                         contentContainerStyle={styles.cardContainer}
+                        ListFooterComponent={() => renderFooter("Drills")}
                     >
                     </FlatList>
                     <PaginationDots 
@@ -266,13 +285,18 @@ const Train = () => {
                     <FlatList
                         data={DATA}
                         ref={fitnessRef}
-                        renderItem={({ item, index }) => renderItem(item, index, fitnessRef, currentFitnessPage)}
+                        renderItem={({ item, index }) => renderItem(item, index, currentFitnessPage, "fitness")}
                         keyExtractor={(item) => item.id}
                         horizontal
                         pagingEnabled
                         showsHorizontalScrollIndicator={false}
                         onScroll={(event) => findCurrentIndexOfItem(event, "fitness")}
+                        snapToInterval={screenWidth * 0.6 + 20}
+                        decelerationRate="fast"
+                        onMomentumScrollEnd={() => scrollToItem(currentFitnessPage, fitnessRef)}
                         contentContainerStyle={styles.cardContainer}
+                        ListFooterComponent={() => renderFooter("Fitness")}
+
                     >
                     </FlatList>
                     <PaginationDots 
@@ -287,12 +311,17 @@ const Train = () => {
                     <FlatList
                         data={DATA}
                         ref={weightsRef}
-                        renderItem={({ item, index }) => renderItem(item, index, weightsRef, currentWeightsPage)}
+                        renderItem={({ item, index }) => renderItem(item, index, currentWeightsPage, "weights")}
                         keyExtractor={(item) => item.id}
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         onScroll={(event) => findCurrentIndexOfItem(event, "weights")}
+                        snapToInterval={screenWidth * 0.6 + 20}
+                        decelerationRate="fast"
+                        onMomentumScrollEnd={() => scrollToItem(currentWeightsPage, weightsRef)}
                         contentContainerStyle={styles.cardContainer}
+                        ListFooterComponent={() => renderFooter("Weights")}
+
                     >
                     </FlatList>
                     <PaginationDots 
@@ -307,12 +336,16 @@ const Train = () => {
                     <FlatList
                         data={DATA}
                         ref={nutritionRef}
-                        renderItem={({ item, index }) => renderItem(item, index, nutritionRef, currentNutritionPage)}
+                        renderItem={({ item, index }) => renderItem(item, index, currentNutritionPage, "nutrition")}
                         keyExtractor={(item) => item.id}
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         onScroll={(event) => findCurrentIndexOfItem(event, "nutrition")}
+                        snapToInterval={screenWidth * 0.6 + 20}
+                        decelerationRate="fast"
+                        onMomentumScrollEnd={() => scrollToItem(currentNutritionPage, nutritionRef)}
                         contentContainerStyle={styles.cardContainer}
+                        ListFooterComponent={() => renderFooter("Nutrition")}
                     >
                     </FlatList>
                     <PaginationDots 
@@ -363,7 +396,7 @@ const styles = StyleSheet.create({
     },
     cardContainer: {
         paddingVertical: 20,
-        paddingRight: 20
+        paddingRight: 20,
     },
     card: {
         width: screenWidth * 0.6,
@@ -397,6 +430,22 @@ const styles = StyleSheet.create({
         backgroundColor: '#ccc',
         marginHorizontal: 5,
     },
+    footer: {
+        width: screenWidth * 0.6,
+        height: screenHeight * 0.4,
+        padding: 20,
+        marginLeft: 20,
+        borderColor: COLORS.primary,
+        borderWidth: 1,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    footerTitle: {
+        fontWeight: 'bold',
+        fontSize: 40,
+        paddingBottom: 20,
+    }
 })
 
 export default Train;
