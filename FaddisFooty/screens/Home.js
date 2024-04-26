@@ -116,8 +116,10 @@ const Home = ({ route }) => {
             <CalendarProvider
                 date={getCurrentDate()}
                 showTodayButton
+                todayBottomMargin={screenHeight*.125}
                 style={styles.calendar}
                 onDateChanged={setActiveDate}
+                
             >
                 <WeekCalendar
                     
@@ -126,6 +128,7 @@ const Home = ({ route }) => {
                     sections={sortedFilteredEvents}
                     keyExtractor={(event) => event._id}
                     renderItem={renderItem}
+                    sectionStyle={styles.section}
                 />
             </CalendarProvider>
         </SafeAreaView>
@@ -136,21 +139,21 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     hello: {
-        fontSize: 50,
+        fontSize: 30,
         fontWeight: 800,
         marginLeft: 10,
         color: COLORS.primary,
     },
     userName: {
-        fontSize: 46,
+        fontSize: 40,
         fontWeight: 800,
         marginLeft: 10,
         marginBottom: 10,
         color: COLORS.primary,
     },
     userImage: {
-        width: 100,
-        height: 100,
+        width: 70,
+        height: 70,
         borderRadius: 50,
         borderWidth: 1,
         borderColor: COLORS.primary,
@@ -159,8 +162,12 @@ const styles = StyleSheet.create({
         right: 10
     },
     calendar: {
-        // paddingBottom: screenWidth * 0.25
-    }
+        backgroundColor: COLORS.white,
+    },
+    section: {
+        textAlign: 'center',
+        backgroundColor: "transparent",
+    },
 });
 
 export default Home;
