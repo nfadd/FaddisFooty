@@ -4,7 +4,7 @@ import { AgendaList, CalendarProvider, WeekCalendar } from 'react-native-calenda
 import COLORS from '../constants/colors';
 import { useEffect, useState, useCallback } from 'react';
 import AgendaItem from '../components/AgendaItem';
-import { fetchUserId, fetchEvents } from '../utils/fetch';
+import { fetchUserId, fetchUserEvents } from '../utils/fetch';
 
 const Home = ({ route }) => {
     const { userId } = route.params;
@@ -29,7 +29,7 @@ const Home = ({ route }) => {
 
         const getEventData = async () => {
             try{
-                const eventData = await fetchEvents();
+                const eventData = await fetchUserEvents(userId);
                 setEvents(eventData);
             } catch (error) {
                 console.error('Error fetching events', error);

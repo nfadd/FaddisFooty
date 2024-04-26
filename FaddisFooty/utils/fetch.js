@@ -21,12 +21,13 @@ const fetchUserEmail = async (user) => {
     }
 };
 
-const fetchEvents = async () => {
+const fetchUserEvents = async (userId) => {
     try {
-        const response = await axios.get(`${serv_addr}/api/events`);
+        const response = await axios.get(`${serv_addr}/api/events/${userId}`);
         return response.data;
     } catch (error) {
-        console.error('Error fetching events', error);
+        // console.error('Error fetching events', error);
+        return error.response.data.message;
     }
 };
 
@@ -39,4 +40,4 @@ const fetchDrills = async () => {
     }
 };
 
-export { fetchUserId, fetchUserEmail, fetchEvents, fetchDrills };
+export { fetchUserId, fetchUserEmail, fetchUserEvents, fetchDrills };

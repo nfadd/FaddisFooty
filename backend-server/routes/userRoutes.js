@@ -97,7 +97,7 @@ router.put('/users/:id', async (req, res) => {
     const userData = req.body;
     try {
         const usersCollection = await getUsersCollection();
-        const result = await usersCollection.updateOne({_id: ObjectId(userId)}, {$set: userData});
+        const result = await usersCollection.updateOne({_id: new ObjectId(userId)}, {$set: userData});
         res.json({ message: 'User updated successfully' });
     } catch (err) {
         console.error('Error updating user', err);
@@ -109,7 +109,7 @@ router.delete('/users/:id', async (req, res) => {
     const userId = req.params.id;
     try {
         const usersCollection = await getUsersCollection();
-        const result = await usersCollection.deleteOne({_id: ObjectId(userId)});
+        const result = await usersCollection.deleteOne({_id: new ObjectId(userId)});
         res.json({ message: 'User deleted successfully' });
     } catch (err) {
         console.error('Error deleting user', err);
@@ -117,10 +117,11 @@ router.delete('/users/:id', async (req, res) => {
     }
 });
 
-router.get('/events', async (req, res) => {
+router.get('/events/:id', async (req, res) => {
+    const userId = req.params.id;
     try {
         const eventsCollection = await getEventsCollection();
-        const events = await eventsCollection.find().toArray();
+        const events = await eventsCollection.find({ userId: new ObjectId(userId) }).toArray();
         res.json(events);
     } catch (err) {
         console.error('Error retrieving events', err); 
