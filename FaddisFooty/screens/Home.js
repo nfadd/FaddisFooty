@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AgendaList, CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import COLORS from '../constants/colors';
@@ -103,6 +103,30 @@ const Home = ({ route }) => {
         return lastDay.toISOString().split('T')[0];
     };
 
+    const getMarkedDates = () => {
+        const markedDates = {};
+        for (let i = 0; i < sortedFilteredEvents.length; i++) {
+            const date = sortedFilteredEvents[i].title;
+
+            const selectedDateStyle = {
+                marked: true,
+                dotColor: COLORS.contrast,
+                selectedDotColor: COLORS.primary,
+                selectedColor: COLORS.contrast
+            };
+            markedDates[date] = selectedDateStyle;
+
+            const currentDate = activeDate;
+            if (!markedDates[currentDate]) {
+                markedDates[currentDate] = {
+                    selected: true,
+                    selectedColor: COLORS.contrast,
+                };
+            }
+        }
+        return markedDates;
+    };
+
     return (
         <SafeAreaView style={{flex: 1}}>
             <View>
@@ -113,24 +137,39 @@ const Home = ({ route }) => {
                     style={styles.userImage} 
                 />
             </View>
-            <CalendarProvider
-                date={getCurrentDate()}
-                showTodayButton
-                todayBottomMargin={screenHeight*.125}
-                style={styles.calendar}
-                onDateChanged={setActiveDate}
-                
-            >
-                <WeekCalendar
-                    
-                />
-                <AgendaList 
-                    sections={sortedFilteredEvents}
-                    keyExtractor={(event) => event._id}
-                    renderItem={renderItem}
-                    sectionStyle={styles.section}
-                />
-            </CalendarProvider>
+
+            
+                <CalendarProvider
+                    date={getCurrentDate()}
+                    showTodayButton
+                    todayBottomMargin={screenHeight*.435}
+                    // style={styles.calendar}
+                    onDateChanged={setActiveDate}
+                    // theme={{
+                    //     todayTextColor: COLORS.contrast
+                    // }}
+                >
+                    <View style={styles.calendarContainer}>
+                        <WeekCalendar
+                            markedDates={getMarkedDates()}
+                        />
+                        {sortedFilteredEvents.length === 0 && (
+                            <View style={styles.noEventsContainer}>
+                                <Text style={styles.noEventsText}>No events scheduled</Text>
+                            </View>
+                        )}
+                        <AgendaList 
+                            sections={sortedFilteredEvents}
+                            keyExtractor={(event) => event._id}
+                            renderItem={renderItem}
+                            sectionStyle={styles.section}
+                            ListHeaderComponentStyle={{ height: 100 }}
+                        />
+                    </View>
+                </CalendarProvider>
+
+            <ScrollView>
+            </ScrollView>
         </SafeAreaView>
     )
 };
@@ -161,13 +200,35 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         right: 10
     },
-    calendar: {
+    calendarContainer: {
         backgroundColor: COLORS.white,
+        // borderWidth: 1,
+        // borderRadius: 20,
+        // borderColor: COLORS.gray,
+        borderBottomColor: COLORS.gray,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        height: screenHeight * 0.425,
     },
     section: {
         textAlign: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 10,
+        paddingRight: 10,
         backgroundColor: "transparent",
     },
+    noEventsText: {
+        fontSize: 30,
+        // fontWeight: "bold",
+        color: COLORS.gray,
+    },
+    noEventsContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
 });
 
 export default Home;

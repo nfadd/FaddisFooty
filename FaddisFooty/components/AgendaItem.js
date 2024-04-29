@@ -11,19 +11,6 @@ const AgendaItem = (props) => {
         Alert.alert(item.item.title);
     }, []);
 
-    // const itemPressed = useCallback(() => {
-    //     Alert.alert(item.item.title);
-    // }, []);
- 
-    if (isEmpty(item)) {
-        return (
-            <View>
-                <Text>No Events Planned Today</Text>
-            </View>
-        );
-    }
-
-
     return (
         <View 
             style={styles.itemContainer}
@@ -44,7 +31,8 @@ const AgendaItem = (props) => {
                 {/* Description Container */}
                 <View style={styles.descriptionContainer}>
                     <Text numberOfLines={1} style={styles.titleText}>{item.item.title}</Text>
-                    <Text numberOfLines={2} style={styles.descriptionText}>{item.item.description}</Text>
+                    {/* <Text numberOfLines={2} style={styles.descriptionText}>{item.item.description}</Text> */}
+                    <Text numberOfLines={1} style={styles.locationText}>{item.item.location}</Text>
                 </View>
 
             </View>
@@ -54,7 +42,8 @@ const AgendaItem = (props) => {
                 <Button 
                     text='Info'
                     onPress={buttonPressed}
-                    style={styles.button} 
+                    style={styles.button}
+                    filled
                 />
             </View>
         </View>
@@ -66,9 +55,12 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const styles = StyleSheet.create({
     itemContainer: {
         paddingVertical: 10,
+        backgroundColor: COLORS.primary,
         borderColor: COLORS.primary,
         borderWidth: 1,
-        // borderRadius: 30,
+        borderRadius: 30,
+        width: "90%",
+        alignSelf: "center",
         justifyContent: "center",
     },
     dataContainer: {
@@ -76,8 +68,8 @@ const styles = StyleSheet.create({
     },
     button: {
         width: "100%",
-        backgroundColor: COLORS.white,
-        borderColor: COLORS.white
+        // backgroundColor: COLORS.white,
+        // borderColor: COLORS.white
     },
     buttonContainer: {
         width: "20%",
@@ -93,7 +85,7 @@ const styles = StyleSheet.create({
     timeText: {
         fontSize: 18,
         // fontWeight: "bold",
-        color: COLORS.black,
+        color: COLORS.white,
         paddingHorizontal: 10,
         paddingBottom: 5,
     },
@@ -105,18 +97,24 @@ const styles = StyleSheet.create({
     },
     descriptionContainer: {
         flex: 1,
-        maxWidth: screenWidth * 0.6
+        maxWidth: screenWidth * 0.55
     },
     titleText: {
         fontSize: 20,
         fontWeight: "bold",
-        color: COLORS.black,
+        color: COLORS.white,
         paddingHorizontal: 10,
         paddingBottom: 5,
     },
     descriptionText: {
         fontSize: 16,
-        color: COLORS.black,
+        color: COLORS.white,
+        paddingHorizontal: 10,
+        paddingBottom: 5,
+    },
+    locationText: {
+        fontSize: 16,
+        color: COLORS.white,
         paddingHorizontal: 10,
         paddingBottom: 5,
     },
