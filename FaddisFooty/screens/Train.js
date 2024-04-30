@@ -16,7 +16,7 @@ const PaginationDots = ({ data, activeIndex }) => {
     );
 };
 
-const Train = () => {
+const Train = ({ navigation }) => {
     const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
     const searchAnimation = useRef(new Animated.Value(0)).current;
@@ -181,7 +181,10 @@ const Train = () => {
 
     const renderFooter = (section) => {
         return (
-            <TouchableOpacity style={styles.footer}>
+            <TouchableOpacity 
+                style={styles.footer}
+                onPress={() => navigation.navigate('DrillDatabase')}
+            >
                 <Text style={styles.footerTitle}>{section}</Text>
                 <Text style={styles.footerTitle}>Database</Text>
             </TouchableOpacity>
